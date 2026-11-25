@@ -178,6 +178,78 @@ th{background:linear-gradient(90deg,#e5f4f5,#f3f8fa);color:#245566}body.dark-the
 @media(prefers-reduced-motion:reduce){.guide-stage,.guide-progress span,#guideDots button,#guidePrev,#guideNext{transition:none!important}.guide-stage.sgc-step-enter .guide-number,.guide-stage.sgc-step-enter .guide-text{animation:none!important}}
 </style>
 
+
+<style id="responsive-layout-only">
+/* Responsive layout refinements only: preserve all existing content and behavior. */
+html{width:100%;overflow-x:hidden}
+body{width:100%;min-width:0;overflow-x:hidden}
+img,svg,video,canvas{max-width:100%;height:auto}
+button,input,select,textarea{max-width:100%;min-width:0}
+.main,.content,.page,.panel,.stat,.hero,.table-wrap{min-width:0}
+.content{width:100%}
+.table-wrap{-webkit-overflow-scrolling:touch}
+.form-grid>* ,.grid>*{min-width:0}
+@media (min-width:1500px){
+  .content{padding-left:32px;padding-right:32px}
+}
+@media (max-width:1100px) and (min-width:761px){
+  .sidebar{width:220px;padding-left:12px;padding-right:12px}
+  .main{margin-left:220px;width:calc(100% - 220px)}
+  .content{padding:20px}
+  .topbar{padding-left:20px;padding-right:20px}
+  .stats,.stock-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .two-col{grid-template-columns:minmax(0,1fr)}
+  .three-col{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:760px){
+  .content{padding:12px}
+  .topbar{gap:8px}
+  .top-left,.top-actions{gap:7px;min-width:0}
+  .page-title{min-width:0;overflow-wrap:anywhere}
+  .top-actions{flex-wrap:nowrap}
+  .hero{align-items:flex-start;flex-direction:column;gap:10px}
+  .section-head{flex-wrap:wrap}
+  .stats,.stock-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .three-col,.quick-grid,.two-col{grid-template-columns:minmax(0,1fr)}
+  .form-grid{grid-template-columns:minmax(0,1fr)}
+  .field.full{grid-column:auto}
+  .toolbar{align-items:stretch}
+  .toolbar input,.toolbar select{min-width:0;max-width:none}
+  .btn-row{align-items:stretch}
+  .modal-backdrop{padding:8px}
+  .modal{width:100%;max-height:94vh}
+  .toast{left:12px;right:12px;bottom:12px;max-width:none}
+}
+@media (max-width:480px){
+  .content{padding:9px}
+  .topbar{padding:0 9px}
+  .page-title{font-size:13px}
+  .top-actions button{padding:7px 8px}
+  .stats,.stock-cards{gap:7px}
+  .stat,.panel{padding:12px}
+  .stat-value{font-size:17px}
+  .hero{padding:16px;border-radius:14px}
+  .section-head h2,.section-head h3{font-size:14px}
+  .calc-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .toolbar{gap:7px}
+  .toolbar>*{flex:1 1 100%}
+  .btn-row .btn{flex:1 1 auto}
+  .table-wrap table{min-width:620px}
+  .portal-nav{gap:8px}
+  .portal-hero{padding-left:14px;padding-right:14px}
+  .portal-content{padding-left:12px;padding-right:12px}
+  .feature-grid,.pricing-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .payment-panel{padding:12px}
+}
+@media (max-width:350px){
+  .stats,.stock-cards,.feature-grid,.pricing-grid{grid-template-columns:minmax(0,1fr)}
+  .calc-grid{grid-template-columns:minmax(0,1fr)}
+  .cp-brand strong{font-size:10px}
+  .portal-theme{padding:8px}
+}
+</style>
+
 </head>
 <body>
 
@@ -6065,58 +6137,5 @@ const observer=new MutationObserver(()=>setupSupport());observer.observe(documen
 @media(max-width:380px){#sgcSalesAnalysis .sgc-insight-grid{grid-template-columns:1fr}}
 body.dark-theme #sgcSalesAnalysis .sgc-insight-card{background:var(--panel,#171b26);border-color:var(--border,#303746)}
 </style>
-
-<script id="clickpaye-attendance-payroll-print-fix">
-(function(){
-'use strict';
-const $=id=>document.getElementById(id);
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const n=v=>{const x=Number(v);return Number.isFinite(x)?x:0;};
-const money=v=>n(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' ETB';
-const pad=v=>String(v).padStart(2,'0');
-const dateKey=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-const dateObj=s=>{const [y,m,d]=String(s||'').split('-').map(Number);return new Date(y||new Date().getFullYear(),(m||1)-1,d||1,12);};
-const today=dateKey(new Date());
-function state(){const s=(typeof appState!=='undefined'?appState:window.appState);if(!s)return null;if(!Array.isArray(s.employees))s.employees=[];if(!Array.isArray(s.attendanceRecords))s.attendanceRecords=[];if(!s.attendanceSettings||typeof s.attendanceSettings!=='object')s.attendanceSettings={};if(!['single','double'].includes(s.attendanceSettings.absenceMode))s.attendanceSettings.absenceMode='double';return s;}
-function save(){try{const s=state();if(s&&typeof window.saveSystemState==='function')window.saveSystemState();}catch(e){console.warn('Attendance save failed',e);}}
-function cycle(e){const v=String(e.payCycle||'').trim().toLowerCase();return v==='monthly'||v==='month'||v.includes('monthly')?'monthly':'weekly';}
-function eligible(type){return (state()?.employees||[]).filter(e=>cycle(e)===type);}
-function weekDates(selected){const d=dateObj(selected),day=d.getDay();d.setDate(d.getDate()-(day===0?6:day-1));return Array.from({length:6},(_,i)=>{const x=new Date(d);x.setDate(d.getDate()+i);return dateKey(x);});}
-function monthDates(selected){const d=dateObj(selected),first=new Date(d.getFullYear(),d.getMonth(),1,12);return Array.from({length:30},(_,i)=>{const x=new Date(first);x.setDate(first.getDate()+i);return dateKey(x);});}
-function datesFor(type,selected){return type==='monthly'?monthDates(selected):weekDates(selected);}
-function getRecord(employeeId,date,create=false){const s=state();if(!s)return null;let r=s.attendanceRecords.find(x=>String(x.employeeId)===String(employeeId)&&x.date===date);if(!r&&create){r={id:'att_'+employeeId+'_'+date,employeeId,date,morning:null,evening:null};s.attendanceRecords.push(r);}return r||null;}
-function norm(v){if(v==='present')return 'present';if(v==='authorized'||v==='absent_authorized')return 'authorized';if(v==='unauthorized'||v==='absent_unapproved'||v==='absent')return 'unauthorized';return '';}
-function statusOptions(id,date,slot,value){return `<select class="cp-att-select" aria-label="${slot==='morning'?'ጠዋት':'ማታ'}" onchange="cpSetAttendance('${esc(id)}','${date}','${slot}',this.value)"><option value="" ${!value?'selected':''}>—</option><option value="present" ${value==='present'?'selected':''}>ተገኝቷል</option><option value="authorized" ${value==='authorized'?'selected':''}>በፈቃድ</option><option value="unauthorized" ${value==='unauthorized'?'selected':''}>ያለፈቃድ</option></select>`;}
-function mount(){const page=$('page-employees');if(!page)return;let box=$('cpAttendancePayroll');if(!box){box=document.createElement('section');box.id='cpAttendancePayroll';box.className='panel';box.style.marginTop='18px';page.appendChild(box);}box.innerHTML=`
-<style>
-#cpAttendancePayroll{font-size:13px}#cpAttendancePayroll .cp-controls{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:12px 0}#cpAttendancePayroll .cp-controls label{display:grid;gap:5px;font-size:12px;font-weight:700}#cpAttendancePayroll input,#cpAttendancePayroll select{padding:8px;border:1px solid var(--border,#ddd);border-radius:8px;background:var(--panel,#fff);color:inherit;max-width:100%;min-width:125px}#cpAttendancePayroll .cp-card{border:1px solid var(--border,#ddd);border-radius:10px;padding:12px;margin:12px 0}#cpAttendancePayroll .cp-table{overflow:auto}#cpAttendancePayroll table{width:100%;min-width:690px;border-collapse:collapse}#cpAttendancePayroll th,#cpAttendancePayroll td{padding:8px;border-bottom:1px solid var(--border,#ddd);text-align:start;vertical-align:middle}#cpAttendancePayroll th{white-space:nowrap}#cpAttendancePayroll .cp-muted{font-size:11px;color:var(--muted,#777)}#cpAttendancePayroll .cp-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:8px;margin:10px 0}#cpAttendancePayroll .cp-stat{padding:10px;border:1px solid var(--border,#ddd);border-radius:8px}#cpAttendancePayroll .cp-stat b{display:block;font-size:16px;margin-top:4px}#cpAttendancePayroll .cp-print{margin:8px 0}@media(max-width:600px){#cpAttendancePayroll .cp-controls>*{flex:1 1 140px}}
-</style>
-<div class="section-head"><div><h2>🕒 አቴንዳንስ / ደሞዝ</h2></div></div>
-<div class="cp-controls"><label>የአቴንዳንስ አይነት<select id="cpPeriodType"><option value="weekly">የሳምንት</option><option value="monthly">የወር</option></select></label><label>ቀን ምረጥ<input type="date" id="cpAttDate" value="${today}"></label><label>ያለፈቃድ ሙሉ ቀን<select id="cpAbsenceMode"><option value="double">ደብል (2 ቀን)</option><option value="single">ሲንግል (1 ቀን)</option></select></label></div>
-<div class="cp-card"><div class="section-head"><h3 id="cpDailyTitle">የዕለት አቴንዳንስ</h3></div><div class="cp-table"><table><thead><tr><th>ሰራተኛ</th><th>ሙሉ ደሞዝ</th><th>ጠዋት</th><th>ማታ</th><th>የቀኑ ሁኔታ</th></tr></thead><tbody id="cpAttRows"></tbody></table></div></div>
-<div class="cp-card"><div class="section-head"><h3 id="cpReportTitle">የሪፖርት ማጠቃለያ</h3><button class="btn cp-print" type="button" id="cpPrintReport">🖨️ ፕሪንት</button></div><div id="cpPeriodReport"></div></div>`;
-$('cpPeriodType').addEventListener('change',render);$('cpAttDate').addEventListener('change',render);$('cpAbsenceMode').value=state().attendanceSettings.absenceMode;$('cpAbsenceMode').addEventListener('change',()=>{state().attendanceSettings.absenceMode=$('cpAbsenceMode').value;save();render();});$('cpPrintReport').addEventListener('click',()=>printElement($('cpPeriodReport'),$('cpReportTitle').textContent));
-}
-function dayStatus(m,e){if((m==='present'||m==='authorized')&&(e==='present'||e==='authorized'))return 'ሙሉ ቀን';if(m==='unauthorized'||e==='unauthorized')return 'ያለፈቃድ ቀሪ';if(m||e)return 'ከፊል / በከፊል ተመዝግቧል';return 'አልተመዘገበም';}
-window.cpSetAttendance=function(id,date,slot,value){if(!['morning','evening'].includes(slot))return;const r=getRecord(id,date,true);r[slot]=norm(value)||null;r[slot+'At']=new Date().toISOString();save();render();};
-function render(){if(!$('cpAttendancePayroll'))mount();if(!$('cpPeriodType'))return;const type=$('cpPeriodType').value,date=$('cpAttDate').value||today,emps=eligible(type),rows=$('cpAttRows');$('cpDailyTitle').textContent=type==='weekly'?'የሳምንት አቴንዳንስ':'የወር አቴንዳንስ';if(type==='weekly'&&dateObj(date).getDay()===0){rows.innerHTML='<tr><td colspan="5">የሳምንት አቴንዳንስ እሁድን አይቆጥርም። ሌላ ቀን ይምረጡ።</td></tr>';}else{rows.innerHTML=emps.map(e=>{const r=getRecord(e.id,date)||{},m=norm(r.morning),v=norm(r.evening);return `<tr><td><strong>${esc(e.name)}</strong><br><small>${esc(e.role||'')}</small></td><td>${money(e.salary)}<br><small>${type==='weekly'?'በሳምንት':'በወር'}</small></td><td>${statusOptions(e.id,date,'morning',m)}</td><td>${statusOptions(e.id,date,'evening',v)}</td><td>${dayStatus(m,v)}</td></tr>`;}).join('')||'<tr><td colspan="5">በዚህ የክፍያ ዑደት የተመዘገበ ሰራተኛ የለም።</td></tr>';}renderReport(type,date,emps);}
-function calculate(e,dates,type){const total=type==='weekly'?6:30,daily=n(e.salary)/total,mode=state().attendanceSettings.absenceMode;let credited=0,penalty=0,presentFull=0,presentHalf=0,authorizedDays=0,unauthorizedHalf=0,unauthorizedFull=0,morningPresent=0,eveningPresent=0;
-for(const d of dates){const r=getRecord(e.id,d)||{},m=norm(r.morning),v=norm(r.evening);if(m==='present')morningPresent++;if(v==='present')eveningPresent++;const mGood=m==='present'||m==='authorized',vGood=v==='present'||v==='authorized';const mBad=m==='unauthorized',vBad=v==='unauthorized';
-if(mBad||vBad){if(mBad&&vBad){penalty+=mode==='double'?2:1;unauthorizedFull++;}else{penalty+=1;unauthorizedHalf++;}continue;}
-if(mGood&&vGood){credited++;presentFull++;if(m==='authorized'||v==='authorized')authorizedDays++;}else if(mGood||vGood){credited+=0.5;presentHalf++;if(m==='authorized'||v==='authorized')authorizedDays+=0.5;}
-}
-const remaining=Math.max(0,total-credited-penalty),deduction=Math.min(n(e.salary),penalty*daily),payable=Math.max(0,n(e.salary)-deduction);return {total,daily,credited,penalty,remaining,deduction,payable,presentFull,presentHalf,authorizedDays,unauthorizedHalf,unauthorizedFull,morningPresent,eveningPresent};}
-function renderReport(type,date,emps){const dates=datesFor(type,date),items=emps.map(e=>({e,c:calculate(e,dates,type)}));const baseTotal=items.reduce((a,x)=>a+n(x.e.salary),0),payTotal=items.reduce((a,x)=>a+x.c.payable,0),deductTotal=items.reduce((a,x)=>a+x.c.deduction,0);$('cpReportTitle').textContent=type==='weekly'?'የሳምንት አቴንዳንስ / ደሞዝ ሪፖርት':'የወር አቴንዳንስ / ደሞዝ ሪፖርት';const note=type==='weekly'?'ሰኞ–ቅዳሜ፤ እሁድ አይቆጠርም።':'30 ቀናት፤ እሁድ ይቆጠራል።';const body=items.map(({e,c})=>`<tr><td>${esc(e.name)}</td><td>${money(e.salary)}</td><td>${c.presentFull}</td><td>${c.presentHalf}</td><td>${c.penalty}</td><td>${c.remaining}</td><td>${money(c.deduction)}</td><td><strong>${money(c.payable)}</strong></td></tr>`).join('');$('cpPeriodReport').innerHTML=`<p class="cp-muted">${note} · ${dates[0]} – ${dates[dates.length-1]} · የቀን ደሞዝ = ሙሉ ደሞዝ ÷ ${type==='weekly'?6:30} · የሚከፈል = ሙሉ ደሞዝ − (የቅጣት ቀን × የቀን ደሞዝ)</p><div class="cp-summary"><div class="cp-stat">ሙሉ ደሞዝ<b>${money(baseTotal)}</b></div><div class="cp-stat">የተቀነሰ ደሞዝ<b>${money(deductTotal)}</b></div><div class="cp-stat">የሚከፈል ደሞዝ<b>${money(payTotal)}</b></div></div><div class="cp-table"><table><thead><tr><th>ሰራተኛ</th><th>ሙሉ ደሞዝ</th><th>ሙሉ ቀን</th><th>ግማሽ ቀን</th><th>የቅጣት ቀን</th><th>ቀሪ ቀን</th><th>የተቀነሰ ደሞዝ</th><th>የሚከፈል ደሞዝ</th></tr></thead><tbody>${body||'<tr><td colspan="8">ሰራተኛ የለም።</td></tr>'}</tbody></table></div>`;}
-function printElement(el,title){if(!el)return;const w=window.open('','_blank');if(!w){alert('ፕሪንት ለማድረግ Pop-up ፍቃድ ይፍቀዱ።');return;}w.document.open();w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>'+esc(title)+'</title><style>body{font-family:Arial,sans-serif;padding:14px;color:#111}table{width:100%;border-collapse:collapse}th,td{border:1px solid #999;padding:6px;font-size:10px;text-align:left}th{background:#eee}.cp-summary{display:flex;gap:12px}.cp-stat{border:1px solid #aaa;padding:8px}</style></head><body><h2>'+esc(title)+'</h2>'+el.innerHTML+'</body></html>');w.document.close();w.onload=()=>{w.focus();w.print();};}
-function fixEmployeeNumbers(){const body=$('employeesTableBody');if(!body)return;body.querySelectorAll('tr').forEach((tr,i)=>{const e=state()?.employees?.[i];if(!e)return;const cells=tr.querySelectorAll('td');if(cells[4])cells[4].textContent=money(e.salary);});}
-function fixPrint(){window.printServiceReport=function(pageId){const source=$(pageId);if(!source){alert('የሪፖርት ገጹ አልተገኘም።');return;}try{const fn={'page-employees':'renderEmployeesTable','page-sales':'renderSalesTable','page-production':'renderProductionTable','page-stock':'renderStockTable','page-products':'renderProductsTable'}[pageId];if(fn&&typeof window[fn]==='function')window[fn]();}catch(e){console.warn(e);}const clone=source.cloneNode(true);clone.querySelectorAll('.no-print,.service-report-tools,.action-tools,button,.btn,.modal,.modal-backdrop').forEach(x=>x.remove());const css='body{font-family:Arial,sans-serif;padding:12mm;color:#111}table{width:100%;border-collapse:collapse;min-width:0}th,td{border:1px solid #aaa;padding:6px;font-size:10px;text-align:left}th{background:#eee}.panel,.stat{break-inside:avoid}*{box-sizing:border-box}';const title=source.querySelector('h2')?.textContent?.trim()||pageId;const w=window.open('','_blank');if(!w){alert('ፕሪንት ለማድረግ Pop-up ፍቃድ ይፍቀዱ።');return;}w.document.open();w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>'+esc(title)+'</title><style>'+css+'</style></head><body><h1>'+esc(title)+'</h1>'+clone.outerHTML+'</body></html>');w.document.close();w.onload=()=>{w.focus();w.print();};};}
-function init(){if(!$('page-employees'))return;mount();render();fixEmployeeNumbers();fixPrint();}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,400));else setTimeout(init,400);
-document.addEventListener('click',e=>{if(e.target.closest('.nav-btn'))setTimeout(init,180);});
-const oldSave=window.saveSystemState;if(typeof oldSave==='function'&&!oldSave.__cpAttendanceSafe){const wrapped=function(){const result=oldSave.apply(this,arguments);setTimeout(()=>{if($('cpAttendancePayroll'))render();fixEmployeeNumbers();},100);return result;};wrapped.__cpAttendanceSafe=true;window.saveSystemState=wrapped;}
-setInterval(()=>{if($('cpAttendancePayroll')){render();fixEmployeeNumbers();}},30000);
-})();
-</script>
-
 </body>
 </html>
